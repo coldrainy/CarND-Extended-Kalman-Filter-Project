@@ -76,8 +76,6 @@ int main()
           		meas_package.raw_measurements_ << px, py;
           		iss >> timestamp;
           		meas_package.timestamp_ = timestamp;
-                std::cout<<"px"<<px<<std::endl;
-                std::cout<<"py"<<py<<std::endl;
           } else if (sensor_type.compare("R") == 0) {
 
       	  		meas_package.sensor_type_ = MeasurementPackage::RADAR;
@@ -87,17 +85,18 @@ int main()
       	  		float ro_dot;
           		iss >> ro;
           		iss >> theta;
+                if(theta > M_PI)
+                  theta = theta - 2*M_PI;
+                else if(theta <= -M_PI)
+                  theta = theta + 2*M_PI;
+                if(theta>M_PI || theta<=-M_PI)
+                    std::cout<<"main.cpp line 93 theta:"<<theta<<std::endl;
           		iss >> ro_dot;
           		meas_package.raw_measurements_ << ro,theta, ro_dot;
           		iss >> timestamp;
           		meas_package.timestamp_ = timestamp;
-                std::cout<<"ro"<<ro<<std::endl;
-                std::cout<<"theta"<<theta<<std::endl;
-                std::cout<<"ro_dot"<<ro_dot<<std::endl;
                 float x = ro*cos(theta);
                 float y = ro*sin(theta);
-                std::cout<<"x"<<x<<std::endl;
-                std::cout<<"y"<<y<<std::endl;
 
           }
           float x_gt;
@@ -116,7 +115,6 @@ int main()
     	  ground_truth.push_back(gt_values);
 
           //Call ProcessMeasurment(meas_package) for Kalman filter
-          std::cout<<"line 109"<<std::endl;
     	  fusionEKF.ProcessMeasurement(meas_package);
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector

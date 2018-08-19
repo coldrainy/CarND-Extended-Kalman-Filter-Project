@@ -54,12 +54,27 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   VectorXd z_pred(3);
   float tho = sqrt(x_(0)*x_(0)+x_(1)*x_(1));
   float theta = 0;
-  if(fabs(x_(0))>0.000001||fabs(x_(1))>0.000001){
+  if(fabs(x_(0))>0.0001||fabs(x_(1))>0.0001){
      theta = atan2(x_(1),x_(0));
+  }else{
+     std::cout<<"error kalman_filter.cc line 60"<<std::endl;
+     return;
   }
+  if(theta > M_PI)
+      theta = theta - 2*M_PI;
+  else if(theta <= -M_PI)
+      theta = theta + 2*M_PI;
+  if(theta>M_PI || theta<=-M_PI)
+      std::cout<<"kalman_filter.cpp line 68 theta:"<<theta<<std::endl;
+
   float tho_dot = (x_(2)*x_(0)+x_(3)*x_(1))/std::max(tho,(float)0.0001);
   z_pred << tho,theta,tho_dot;
   VectorXd y = z - z_pred;
+  if(y(1) > M_PI)
+      y(1) = y(1) - 2*M_PI;
+  else if(y(1) <= -M_PI)
+      y(1) = y(1) + 2*M_PI;
+
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
